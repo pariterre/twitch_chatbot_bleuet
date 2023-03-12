@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:math';
 
@@ -44,8 +43,8 @@ class TwitchAuthenticator {
   }
 
   static String _authenticateViaConsole(String address) {
-    dev.log('Please navigate to the following address, then copy the '
-        'answer here:\n$address');
+    stdout.write('Please navigate to the following address:\n$address\n'
+        'Then copy the address returned here:\n');
 
     return stdin.readLineSync()!;
   }
