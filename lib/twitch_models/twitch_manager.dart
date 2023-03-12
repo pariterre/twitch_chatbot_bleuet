@@ -3,7 +3,7 @@ import 'twitch_models.dart';
 class TwitchManager {
   late final TwitchAuthenticator _authenticator;
   late final TwitchIrc? irc;
-  late final TwitchRestApi? api;
+  late final TwitchApi api;
 
   ///
   /// Main constructor
@@ -16,7 +16,7 @@ class TwitchManager {
         ? await TwitchIrc.factory(ircCredentials, authenticator: authenticator)
         : null;
 
-    final api = TwitchRestApi(authenticator: authenticator);
+    final api = TwitchApi(authenticator: authenticator);
 
     return TwitchManager._(authenticator, irc, api);
   }
