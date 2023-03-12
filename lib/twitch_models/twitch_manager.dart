@@ -7,16 +7,21 @@ class TwitchManager {
 
   ///
   /// Main constructor
+  /// [streamerName] is the name of the stream. [moderatorName] is the current
+  /// logged id used with authenticator. If it is left empty, [streamerName]
+  /// is used
   ///
   static Future<TwitchManager> factory({
     required TwitchAuthenticator authenticator,
-    TwitchIrcCredentials? ircCredentials,
+    required TwitchCredentials credentials,
   }) async {
-    final irc = ircCredentials != null
-        ? await TwitchIrc.factory(ircCredentials, authenticator: authenticator)
-        : null;
+    final irc =
+        await TwitchIrc.factory(credentials, authenticator: authenticator);
 
-    final api = TwitchApi(authenticator: authenticator);
+    final api = await TwitchApi.factory(
+      credentials,
+      authenticator: authenticator,
+    );
 
     return TwitchManager._(authenticator, irc, api);
   }

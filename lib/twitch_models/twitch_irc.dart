@@ -11,7 +11,7 @@ const _ircPort = 6667;
 const _regexpMessage = r'^:(.*)!.*@.*PRIVMSG.*#.*:(.*)$';
 
 class TwitchIrc {
-  final TwitchIrcCredentials ircCredentials;
+  final TwitchCredentials ircCredentials;
 
   final Socket _socket;
   bool isConnected = false;
@@ -23,7 +23,7 @@ class TwitchIrc {
   /// Main constructor
   ///
   static Future<TwitchIrc> factory(
-    TwitchIrcCredentials ircCredentials, {
+    TwitchCredentials ircCredentials, {
     required TwitchAuthenticator authenticator,
   }) async {
     return TwitchIrc._(
@@ -46,7 +46,7 @@ class TwitchIrc {
   /// Send a [message] to the chat of the channel
   ///
   void send(String message) {
-    _send('PRIVMSG #${ircCredentials.channel} :$message');
+    _send('PRIVMSG #${ircCredentials.streamerName} :$message');
   }
 
   ///
@@ -63,14 +63,14 @@ class TwitchIrc {
     isConnected = true;
 
     _send('PASS oauth:${authenticator.oauthKey}');
-    _send('NICK ${ircCredentials.username}');
-    _send('JOIN #${ircCredentials.channel}');
+    _send('NICK ${ircCredentials.moderatorName}');
+    _send('JOIN #${ircCredentials.streamerName}');
   }
 
   ///
   /// Disconnect to Twitch IRC
   Future<void> _disconnect() async {
-    _send('PART ${ircCredentials.channel}');
+    _send('PART ${ircCredentials.streamerName}');
 
     await _socket.close(); // TODO: this does not seem to work
     isConnected = false;
