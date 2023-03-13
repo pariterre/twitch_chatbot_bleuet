@@ -9,6 +9,20 @@ import 'twitch_models/twitch_models.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final manager = await _getTwitchManager();
+  debugPrint('Pariterre id : ${manager.api.streamerId}');
+  debugPrint('Chatters : ${await manager.api.fetchChatters(
+    blacklist: [
+      'CommanderRoot',
+      'Drapsnatt',
+      'Kattah',
+      'Lurxx',
+      'Natzelly',
+      'StreamElements',
+      'Violets_TV',
+    ],
+  )}');
+
   runApp(MaterialApp(
     home: TwitchChatBot(twitchManager: await _getTwitchManager()),
   ));
@@ -21,6 +35,7 @@ Future<TwitchManager> _getTwitchManager() async {
   final scope = [
     TwitchScope.chatRead,
     TwitchScope.chatEdit,
+    TwitchScope.chatters,
     TwitchScope.readFollowers,
     TwitchScope.readSubscribers,
   ];
@@ -39,7 +54,8 @@ Future<TwitchManager> _getTwitchManager() async {
   final authenticator = TwitchAuthenticator(oauthKey: oauth, appId: appId);
 
   return await TwitchManager.factory(
-      authenticator: authenticator,
-      ircCredentials:
-          TwitchIrcCredentials(username: 'BotBleuet', channel: 'pariterre'));
+    authenticator: authenticator,
+    credentials: TwitchCredentials(
+        moderatorName: 'BotBleuet', streamerName: 'pariterre'),
+  );
 }

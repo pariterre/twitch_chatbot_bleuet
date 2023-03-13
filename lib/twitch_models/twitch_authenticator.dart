@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -13,7 +14,7 @@ class TwitchAuthenticator {
     required this.appId,
   });
 
-  // TODO: Validate key every hour
+  // TODO: Validate key every hour (https://dev.twitch.tv/docs/authentication/validate-tokens/)
 
   ///
   /// Get a new OAUTH for the user
@@ -33,7 +34,7 @@ class TwitchAuthenticator {
         '&state=$stateToken';
     final answer = authenticateCallback != null
         ? await authenticateCallback(address)
-        : _authenticateViaConsole(address);
+        : await _authenticateViaConsole(address);
 
     final re =
         RegExp(r'^http://localhost:3000/#access_token=([a-zA-Z0-9]*)&.*$');
@@ -42,10 +43,59 @@ class TwitchAuthenticator {
     return match!.group(1)!;
   }
 
-  static String _authenticateViaConsole(String address) {
-    stdout.write('Please navigate to the following address:\n$address\n'
-        'Then copy the address returned here:\n');
+  static Future<String> _authenticateViaConsole(String address) async {
+    stdout.write('Please navigate to the following address:\n$address\n');
 
-    return stdin.readLineSync()!;
+    const postingKeyWebsite = '<!DOCTYPE html>'
+        '<html><body>'
+        'Redirecting you... Please wait!'
+        '<script>'
+        'var xhr = new XMLHttpRequest();'
+        'xhr.open("POST", \'http://localhost:3000\', true);'
+        'xhr.setRequestHeader(\'Content-Type\', \'application/json\');'
+        'xhr.send(JSON.stringify({\'token\': window.location.href}));'
+        '</script>'
+        '</body></html>';
+
+    const canCloseWebsite = '<!DOCTYPE html>'
+        '<html><body>'
+        'You can close this page'
+        '</body></html>';
+
+    bool hasRequestedWebsite = false;
+    bool hasSentKey = false;
+    String answer = '';
+
+    void waitingForAnswer(Socket client) {
+      // The first answer is to post the validation key
+      if (!hasRequestedWebsite) {
+        client.listen((data) async {
+          hasRequestedWebsite = true;
+          client.write(
+              "HTTP/1.1 200 OK\nContent-Type: text\nContent-Length: ${postingKeyWebsite.length}\n\n$postingKeyWebsite");
+          client.close();
+          return;
+        });
+      } else {
+        client.listen((data) async {
+          client.write(
+              "HTTP/1.1 200 OK\nContent-Type: text\nContent-Length: ${canCloseWebsite.length}\n\n$canCloseWebsite");
+          client.close();
+
+          final answerAsString = String.fromCharCodes(data).trim();
+          answer = jsonDecode(answerAsString.split('\n').last)['token']!;
+          hasSentKey = true;
+          return;
+        });
+      }
+    }
+
+    final server = await ServerSocket.bind('localhost', 3000);
+    server.listen(waitingForAnswer);
+    while (!hasSentKey) {
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    return answer;
   }
 }
