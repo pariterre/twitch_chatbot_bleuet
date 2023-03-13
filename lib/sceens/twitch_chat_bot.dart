@@ -4,13 +4,17 @@ import '/models/twitch_sender.dart';
 import '/twitch_models/twitch_models.dart';
 
 class TwitchChatBot extends StatelessWidget {
-  const TwitchChatBot({super.key, required this.twitchManager});
+  static const route = '/twitch-chat-bot';
 
-  final TwitchManager twitchManager;
+  const TwitchChatBot({super.key});
+
   final nbReoccurringRow = 10;
 
   @override
   Widget build(BuildContext context) {
+    final twitchManager =
+        ModalRoute.of(context)!.settings.arguments as TwitchManager;
+
     final reoccurringSender = <Widget>[];
     for (var i = 0; i < nbReoccurringRow; i++) {
       reoccurringSender.add(Padding(

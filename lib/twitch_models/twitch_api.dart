@@ -11,27 +11,25 @@ const _twitchUri = 'https://api.twitch.tv/helix';
 class TwitchApi {
   final int streamerId;
   final int moderatorId;
-  final TwitchAuthenticator authenticator;
+  final TwitchAuthentication authentication;
 
   ///
   /// Private constructor
   ///
-  TwitchApi._(this.authenticator, this.streamerId, this.moderatorId);
+  TwitchApi._(this.authentication, this.streamerId, this.moderatorId);
 
   ///
   /// The constructor for the Twitch API, [streamerName] is the of the streamer,
   /// [moderatorName] is the name of the current poster. If [moderatorName] is
   /// left empty, then [streamerName] is used.
   ///
-  static Future<TwitchApi> factory(
-    TwitchCredentials credentials, {
-    required TwitchAuthenticator authenticator,
-  }) async {
+  static Future<TwitchApi> factory(TwitchAuthentication authenticator) async {
     // Create a temporary TwitchApi with [streamerId] and [botId] empty so we
     // can fetch them
     final api = TwitchApi._(authenticator, -1, -1);
-    final streamerId = (await api.fetchStreamerId(credentials.streamerName))!;
-    final moderatorId = (await api.fetchStreamerId(credentials.moderatorName))!;
+    final streamerId = (await api.fetchStreamerId(authenticator.streamerName))!;
+    final moderatorId =
+        (await api.fetchStreamerId(authenticator.moderatorName))!;
 
     return TwitchApi._(authenticator, streamerId, moderatorId);
   }
@@ -86,8 +84,8 @@ class TwitchApi {
     final response = await get(
       Uri.parse('$_twitchUri/$requestType?$params'),
       headers: <String, String>{
-        HttpHeaders.authorizationHeader: 'Bearer ${authenticator.oauthKey}',
-        'Client-Id': authenticator.appId,
+        HttpHeaders.authorizationHeader: 'Bearer ${authentication.oauthKey}',
+        'Client-Id': authentication.appId,
       },
     );
 

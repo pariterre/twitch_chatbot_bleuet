@@ -11,7 +11,7 @@ const _ircPort = 6667;
 const _regexpMessage = r'^:(.*)!.*@.*PRIVMSG.*#.*:(.*)$';
 
 class TwitchIrc {
-  final TwitchCredentials ircCredentials;
+  final TwitchAuthentication authentication;
 
   final Socket _socket;
   bool isConnected = false;
@@ -22,23 +22,16 @@ class TwitchIrc {
   ///
   /// Main constructor
   ///
-  static Future<TwitchIrc> factory(
-    TwitchCredentials ircCredentials, {
-    required TwitchAuthenticator authenticator,
-  }) async {
+  static Future<TwitchIrc> factory(TwitchAuthentication authentication) async {
     return TwitchIrc._(
-      await Socket.connect(_ircServerAddress, _ircPort),
-      ircCredentials,
-      authenticator,
-    );
+        await Socket.connect(_ircServerAddress, _ircPort), authentication);
   }
 
   ///
   /// Private constructor
   ///
-  TwitchIrc._(
-      this._socket, this.ircCredentials, TwitchAuthenticator authenticator) {
-    _connect(authenticator: authenticator);
+  TwitchIrc._(this._socket, this.authentication) {
+    _connect(authentication);
     // TODO: add finalizer
   }
 
@@ -46,7 +39,7 @@ class TwitchIrc {
   /// Send a [message] to the chat of the channel
   ///
   void send(String message) {
-    _send('PRIVMSG #${ircCredentials.streamerName} :$message');
+    _send('PRIVMSG #${authentication.streamerName} :$message');
   }
 
   ///
@@ -58,19 +51,19 @@ class TwitchIrc {
 
   ///
   /// Connect to Twitch IRC
-  void _connect({required TwitchAuthenticator authenticator}) {
+  void _connect( TwitchAuthentication authenticator) {
     _socket.listen(_messageReceived);
     isConnected = true;
 
     _send('PASS oauth:${authenticator.oauthKey}');
-    _send('NICK ${ircCredentials.moderatorName}');
-    _send('JOIN #${ircCredentials.streamerName}');
+    _send('NICK ${authentication.moderatorName}');
+    _send('JOIN #${authentication.streamerName}');
   }
 
   ///
   /// Disconnect to Twitch IRC
   Future<void> _disconnect() async {
-    _send('PART ${ircCredentials.streamerName}');
+    _send('PART ${authentication.streamerName}');
 
     await _socket.close(); // TODO: this does not seem to work
     isConnected = false;
