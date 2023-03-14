@@ -72,7 +72,8 @@ class TwitchApi {
   }
 
   ///
-  /// Post the actual request to Twitch
+  /// Post an actual request to Twitch
+  /// 
   Future<List> _sendGetRequest(
       {required String requestType,
       required Map<String, String?> parameters}) async {

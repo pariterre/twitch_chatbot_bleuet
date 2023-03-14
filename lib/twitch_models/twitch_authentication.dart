@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:http/http.dart';
+
 import 'twitch_models.dart';
 
 class TwitchAuthentication {
@@ -32,13 +34,17 @@ class TwitchAuthentication {
   ///
   /// Prepare everything which is required when connecting with Twitch API
   /// [requestUserToBrowse] provides a website that the user must navigate to in
-  /// order to authenticate
+  /// order to authenticate.
+  /// [onInvalidToken] is called if the Token is found invalid.
   ///
   Future<void> connect({
     required Future<void> Function(String address) requestUserToBrowse,
+    required Future<void> Function() onInvalidToken,
   }) async {
     oauthKey ??= await _generateOauthKey(requestUserToBrowse);
-    // TODO: Validate key every hour (https://dev.twitch.tv/docs/authentication/validate-tokens/)
+    _validateToken(onInvalidToken);
+    Timer.periodic(
+        const Duration(hours: 1), (timer) => _validateToken(onInvalidToken));
   }
 
   ///
@@ -117,5 +123,26 @@ class TwitchAuthentication {
     }
 
     return answer;
+  }
+
+  ///
+  /// Validates the current token. This is mandatory as stated here:
+  /// https://dev.twitch.tv/docs/authentication/validate-tokens/
+  ///
+  Future<void> _validateToken(Future<void> Function() onInvalidToken) async {
+    final response = await get(
+      Uri.parse('https://id.twitch.tv/oauth2/validate'),
+      headers: <String, String>{
+        HttpHeaders.authorizationHeader: 'Bearer $oauthKey',
+        'Client-Id': appId,
+      },
+    );
+
+    final responseDecoded = await jsonDecode(response.body) as Map;
+    if (responseDecoded.keys.contains('status') &&
+        responseDecoded['status'] == 401) {
+      onInvalidToken();
+      throw 'Token invalid, please refresh your authentication';
+    }
   }
 }

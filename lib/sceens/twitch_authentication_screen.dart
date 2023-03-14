@@ -17,7 +17,7 @@ class TwitchAuthenticationScreen extends StatefulWidget {
 
 class _TwitchAuthenticationScreenState
     extends State<TwitchAuthenticationScreen> {
-  String? _textToNavigate;
+  String? _textToShow;
   TwitchManager? _manager;
 
   @override
@@ -53,19 +53,24 @@ class _TwitchAuthenticationScreenState
         authentication: authentication,
         onAuthenticationRequest: _manageRequestUserToBrowse,
         onAuthenticationSuccess: (address) async =>
-            _saveOauthKey(address, oauthJsonPath));
+            _saveOauthKey(address, oauthJsonPath),
+        onInvalidToken: _manageInvalidToken);
     navigator.pushReplacementNamed(widget.nextRoute, arguments: _manager);
   }
 
   Future<void> _manageRequestUserToBrowse(String address) async {
-    _textToNavigate = address;
+    _textToShow = 'Please navigate to\n$address';
     setState(() {});
+  }
+
+  Future<void> _manageInvalidToken() async {
+    _textToShow = 'Invalid token, please renew the OAUTH authentication';
   }
 
   @override
   Widget build(BuildContext context) {
     late Widget widgetToShow;
-    if (_textToNavigate == null) {
+    if (_textToShow == null) {
       widgetToShow = Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: const [
@@ -77,8 +82,7 @@ class _TwitchAuthenticationScreenState
         ],
       );
     } else {
-      widgetToShow =
-          Center(child: SelectableText('Please navigate to\n$_textToNavigate'));
+      widgetToShow = Center(child: SelectableText(_textToShow!));
     }
 
     return Scaffold(
