@@ -66,7 +66,7 @@ class _TwitchAuthenticationScreenState
   Widget build(BuildContext context) {
     late Widget widgetToShow;
     if (_textToNavigate == null) {
-      widgetToShow = Row(
+      widgetToShow = Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: const [
           Center(child: Text('Please wait while we are logging you')),

@@ -73,18 +73,13 @@ class TwitchAuthentication {
   Future<String> _waitForAuthentication() async {
     const postingKeyWebsite = '<!DOCTYPE html>'
         '<html><body>'
-        'Redirecting you... Please wait!'
+        'You can close this page'
         '<script>'
         'var xhr = new XMLHttpRequest();'
         'xhr.open("POST", \'http://localhost:3000\', true);'
         'xhr.setRequestHeader(\'Content-Type\', \'application/json\');'
         'xhr.send(JSON.stringify({\'token\': window.location.href}));'
         '</script>'
-        '</body></html>';
-
-    const canCloseWebsite = '<!DOCTYPE html>'
-        '<html><body>'
-        'You can close this page'
         '</body></html>';
 
     bool hasRequestedWebsite = false;
@@ -105,10 +100,6 @@ class TwitchAuthentication {
         });
       } else {
         client.listen((data) async {
-          client.write('HTTP/1.1 200 OK\nContent-Type: text\n'
-              'Content-Length: ${canCloseWebsite.length}\n'
-              '\n'
-              '$canCloseWebsite');
           client.close();
 
           final answerAsString = String.fromCharCodes(data).trim();
