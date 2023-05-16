@@ -1,6 +1,7 @@
-import 'package:botbleuet_twitch/sceens/twitch_authentication_screen.dart';
 import 'package:flutter/material.dart';
 
+import '/sceens/twitch_authentication_screen.dart';
+import '/twitch_models/twitch_models.dart';
 import 'sceens/twitch_chat_bot.dart';
 
 void main() async {
@@ -8,7 +9,19 @@ void main() async {
     initialRoute: TwitchAuthenticationScreen.route,
     routes: {
       TwitchAuthenticationScreen.route: (ctx) =>
-          const TwitchAuthenticationScreen(nextRoute: TwitchChatBot.route),
+          const TwitchAuthenticationScreen(
+            nextRoute: TwitchChatBot.route,
+            appId: 'mcysoxq3vitdjwcqn71f8opz11cyex',
+            scope: [
+              TwitchScope.chatRead,
+              TwitchScope.chatEdit,
+              TwitchScope.chatters,
+              TwitchScope.readFollowers,
+              TwitchScope.readSubscribers,
+            ],
+            moderatorName: 'BotBleuet',
+            streamerName: 'pariterre',
+          ),
       TwitchChatBot.route: (ctx) => const TwitchChatBot(),
     },
   ));

@@ -20,10 +20,10 @@ class TwitchAuthentication {
   ///
   TwitchAuthentication({
     this.oauthKey,
-    required this.streamerName,
-    String? moderatorName,
     required this.appId,
     required this.scope,
+    required this.streamerName,
+    String? moderatorName,
   }) : moderatorName = moderatorName ?? streamerName;
 
   String? oauthKey;

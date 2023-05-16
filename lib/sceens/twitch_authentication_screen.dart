@@ -6,9 +6,21 @@ import 'package:flutter/material.dart';
 import '/twitch_models/twitch_models.dart';
 
 class TwitchAuthenticationScreen extends StatefulWidget {
-  const TwitchAuthenticationScreen({super.key, required this.nextRoute});
+  const TwitchAuthenticationScreen({
+    super.key,
+    required this.nextRoute,
+    required this.appId,
+    required this.scope,
+    required this.streamerName,
+    required this.moderatorName,
+  });
   static const route = '/authentication';
   final String nextRoute;
+
+  final String appId;
+  final List<TwitchScope> scope;
+  final String streamerName;
+  final String moderatorName;
 
   @override
   State<TwitchAuthenticationScreen> createState() =>
@@ -37,16 +49,10 @@ class _TwitchAuthenticationScreenState
 
     final authentication = TwitchAuthentication(
       oauthKey: oauthKey,
-      appId: 'mcysoxq3vitdjwcqn71f8opz11cyex',
-      scope: [
-        TwitchScope.chatRead,
-        TwitchScope.chatEdit,
-        TwitchScope.chatters,
-        TwitchScope.readFollowers,
-        TwitchScope.readSubscribers,
-      ],
-      moderatorName: 'BotBleuet',
-      streamerName: 'pariterre',
+      appId: widget.appId,
+      scope: widget.scope,
+      streamerName: widget.streamerName,
+      moderatorName: widget.moderatorName,
     );
 
     _manager = await TwitchManager.factory(
