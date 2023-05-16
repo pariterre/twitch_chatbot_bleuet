@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:twitch_manager/twitch_manager.dart';
 
 import '/models/twitch_sender.dart';
-import '/twitch_models/twitch_models.dart';
 
 class TwitchChatBot extends StatelessWidget {
   static const route = '/twitch-chat-bot';

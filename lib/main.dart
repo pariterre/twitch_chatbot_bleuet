@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:twitch_manager/twitch_manager.dart';
 
 import '/sceens/twitch_authentication_screen.dart';
-import '/twitch_models/twitch_models.dart';
-import 'sceens/twitch_chat_bot.dart';
+import '/sceens/twitch_chat_bot.dart';
 
 void main() async {
   runApp(MaterialApp(

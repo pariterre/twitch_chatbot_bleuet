@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:twitch_manager/twitch_manager.dart';
 
-import '/twitch_models/twitch_models.dart';
 
 class TwitchAuthenticationScreen extends StatefulWidget {
   const TwitchAuthenticationScreen({

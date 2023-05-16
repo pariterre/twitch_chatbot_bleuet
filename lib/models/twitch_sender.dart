@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '/twitch_models/twitch_models.dart';
+import 'package:twitch_manager/twitch_manager.dart';
 
 class TwitchSender {
   TwitchSender({required this.twitchManager, this.message = ''});
