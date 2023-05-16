@@ -11,7 +11,7 @@ const _ircPort = 6667;
 const _regexpMessage = r'^:(.*)!.*@.*PRIVMSG.*#.*:(.*)$';
 
 class TwitchIrc {
-  final TwitchAuthentication authentication;
+  final TwitchAuthentication _authentication;
 
   final Socket _socket;
   bool isConnected = false;
@@ -30,16 +30,15 @@ class TwitchIrc {
   ///
   /// Private constructor
   ///
-  TwitchIrc._(this._socket, this.authentication) {
-    _connect(authentication);
-    // TODO: add finalizer
+  TwitchIrc._(this._socket, this._authentication) {
+    _connect(_authentication);
   }
 
   ///
   /// Send a [message] to the chat of the channel
   ///
   void send(String message) {
-    _send('PRIVMSG #${authentication.streamerName} :$message');
+    _send('PRIVMSG #${_authentication.streamerName} :$message');
   }
 
   ///
@@ -51,21 +50,21 @@ class TwitchIrc {
 
   ///
   /// Connect to Twitch IRC
-  void _connect( TwitchAuthentication authenticator) {
+  void _connect(TwitchAuthentication authenticator) {
     _socket.listen(_messageReceived);
     isConnected = true;
 
     _send('PASS oauth:${authenticator.oauthKey}');
-    _send('NICK ${authentication.moderatorName}');
-    _send('JOIN #${authentication.streamerName}');
+    _send('NICK ${_authentication.moderatorName}');
+    _send('JOIN #${_authentication.streamerName}');
   }
 
   ///
   /// Disconnect to Twitch IRC
-  Future<void> _disconnect() async {
-    _send('PART ${authentication.streamerName}');
+  Future<void> disconnect() async {
+    _send('PART ${_authentication.streamerName}');
 
-    await _socket.close(); // TODO: this does not seem to work
+    await _socket.close();
     isConnected = false;
   }
 
@@ -73,34 +72,36 @@ class TwitchIrc {
   /// This method is called each time a new message is sent
   ///
   void _messageReceived(Uint8List data) {
-    var response = String.fromCharCodes(data);
+    var fullMessage = String.fromCharCodes(data);
     // Remove the line returns
-    if (response[response.length - 1] == '\n') {
-      response = response.substring(0, response.length - 1);
+    if (fullMessage[fullMessage.length - 1] == '\n') {
+      fullMessage = fullMessage.substring(0, fullMessage.length - 1);
     }
-    if (response[response.length - 1] == '\r') {
-      response = response.substring(0, response.length - 1);
+    if (fullMessage[fullMessage.length - 1] == '\r') {
+      fullMessage = fullMessage.substring(0, fullMessage.length - 1);
     }
 
-    if (response == 'PING :tmi.twitch.tv') {
+    if (fullMessage == 'PING :tmi.twitch.tv') {
       // Keep connexion alive
+      log(fullMessage);
       _send('PONG :tmi.twitch.tv');
-      log(response);
+      log('PONG');
       return;
     }
 
     final re = RegExp(_regexpMessage);
-    final match = re.firstMatch(response);
+    final match = re.firstMatch(fullMessage);
+    // If this is an unrecognized format, log and call fallback
     if (match == null || match.groupCount != 2) {
-      log(response);
-      if (twitchCallback != null) twitchCallback!(response);
+      log(fullMessage);
+      if (twitchCallback != null) twitchCallback!(fullMessage);
       return;
     }
 
+    // If this is a message from the chat
     final sender = match.group(1)!;
     final message = match.group(2)!;
     log('Message received:\n$sender: $message');
-
     if (messageCallback != null) messageCallback!(sender, message);
   }
 }

@@ -1,9 +1,11 @@
 import 'twitch_models.dart';
 
 class TwitchManager {
-  late final TwitchAuthentication _authentication;
   late final TwitchIrc? irc;
   late final TwitchApi api;
+
+  static final Finalizer<TwitchIrc> _finalizerIrc =
+      Finalizer((irc) => irc.disconnect());
 
   ///
   /// Main constructor
@@ -21,19 +23,22 @@ class TwitchManager {
     required Future<void> Function(String key) onAuthenticationSuccess,
     required Future<void> Function() onInvalidToken,
   }) async {
-    await authentication.connect(
+    final success = await authentication.connect(
         requestUserToBrowse: onAuthenticationRequest,
         onInvalidToken: onInvalidToken);
+    if (!success) throw 'Failed to connect';
+
     onAuthenticationSuccess(authentication.oauthKey!);
 
     final api = await TwitchApi.factory(authentication);
     final irc = await TwitchIrc.factory(authentication);
+    _finalizerIrc.attach(irc, irc, detach: irc);
 
-    return TwitchManager._(authentication, irc, api);
+    return TwitchManager._(irc, api);
   }
 
   ///
   /// Private constructor
   ///
-  TwitchManager._(this._authentication, this.irc, this.api);
+  TwitchManager._(this.irc, this.api);
 }

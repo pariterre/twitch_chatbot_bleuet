@@ -11,12 +11,12 @@ const _twitchUri = 'https://api.twitch.tv/helix';
 class TwitchApi {
   final int streamerId;
   final int moderatorId;
-  final TwitchAuthentication authentication;
+  final TwitchAuthentication _authentication;
 
   ///
   /// Private constructor
   ///
-  TwitchApi._(this.authentication, this.streamerId, this.moderatorId);
+  TwitchApi._(this._authentication, this.streamerId, this.moderatorId);
 
   ///
   /// The constructor for the Twitch API, [streamerName] is the of the streamer,
@@ -73,7 +73,7 @@ class TwitchApi {
 
   ///
   /// Post an actual request to Twitch
-  /// 
+  ///
   Future<List> _sendGetRequest(
       {required String requestType,
       required Map<String, String?> parameters}) async {
@@ -85,10 +85,13 @@ class TwitchApi {
     final response = await get(
       Uri.parse('$_twitchUri/$requestType?$params'),
       headers: <String, String>{
-        HttpHeaders.authorizationHeader: 'Bearer ${authentication.oauthKey}',
-        'Client-Id': authentication.appId,
+        HttpHeaders.authorizationHeader: 'Bearer ${_authentication.oauthKey}',
+        'Client-Id': _authentication.appId,
       },
     );
+
+    // Make sure the token is still valid before continuing
+    if (!await _authentication.checkIfTokenIsValid(response)) return [];
 
     final responseDecoded = await jsonDecode(response.body) as Map;
     if (responseDecoded.containsKey('data')) {

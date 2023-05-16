@@ -10,10 +10,19 @@ class TwitchChatBot extends StatelessWidget {
 
   final nbReoccurringRow = 10;
 
+  void greatings(TwitchManager twitchManager) async {
+    final chatters =
+        await twitchManager.api.fetchChatters(blacklist: ['StreamElements']);
+    final message = 'Bonjour à tous ${chatters!.map((e) => '@$e')}';
+    twitchManager.irc!.send(message);
+  }
+
   @override
   Widget build(BuildContext context) {
     final twitchManager =
         ModalRoute.of(context)!.settings.arguments as TwitchManager;
+
+    greatings(twitchManager);
 
     final reoccurringSender = <Widget>[];
     for (var i = 0; i < nbReoccurringRow; i++) {

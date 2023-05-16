@@ -8,9 +8,6 @@ enum TwitchScope {
 }
 
 extension TwitchScopeStringify on TwitchScope {
-  // TODO check if it is needed
-  static const colon = '%3A';
-
   String text() {
     switch (this) {
       case TwitchScope.chatRead:
