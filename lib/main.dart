@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:twitch_manager/twitch_manager.dart';
 
-import '/sceens/twitch_authentication_screen.dart';
 import '/sceens/twitch_chat_bot.dart';
 
 void main() async {
@@ -19,8 +18,8 @@ void main() async {
               TwitchScope.readFollowers,
               TwitchScope.readSubscribers,
             ],
-            moderatorName: 'BotBleuet',
-            streamerName: 'pariterre',
+            withModerator: true,
+            forceNewAuthentication: false,
           ),
       TwitchChatBot.route: (ctx) => const TwitchChatBot(),
     },

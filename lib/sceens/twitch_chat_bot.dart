@@ -13,7 +13,7 @@ class TwitchChatBot extends StatelessWidget {
   void greatings(TwitchManager twitchManager) async {
     final chatters =
         await twitchManager.api.fetchChatters(blacklist: ['StreamElements']);
-    final message = 'Bonjour à tous ${chatters!.map((e) => '@$e')}';
+    final message = 'Bonjour à tous ${chatters?.map((e) => '@$e')}';
     twitchManager.irc!.send(message);
   }
 
@@ -160,77 +160,3 @@ class _TextSenderState extends State<TextSender> {
     );
   }
 }
-
-
-
-
-
-
-  // String _lastMessage = '';
-  // String _answerUrl = '';
-  // String _username = '';
-  // void _updateTwitchAnswer(String message) {
-  //   _lastMessage = message;
-  //   setState(() {});
-  // }
-
-  // bool _isWaitingForAuthenticate = false;
-  // Future<String> _showAuthentication(String url) async {
-  //   _isWaitingForAuthenticate = true;
-  //   _lastMessage = url;
-  //   setState(() {});
-  //   while (_isWaitingForAuthenticate) {
-  //     await Future.delayed(const Duration(milliseconds: 100));
-  //   }
-  //   return _answerUrl;
-  // }
-
-  // void _validate() {
-  //   _isWaitingForAuthenticate = false;
-  //   setState(() {});
-  // }
-
-
-
-// in build
-// const Text('HTTP API',
-//     style: TextStyle(
-//       fontSize: 18,
-//       fontWeight: FontWeight.bold,
-//     )),
-// Padding(
-//   padding: const EdgeInsets.all(8.0),
-//   child: _isWaitingForAuthenticate
-//       ? TextSender(
-//           labelText: 'Copy the address bar',
-//           buttonText: 'Validate',
-//           onChanged: (value) =>
-//               setState(() => _answerUrl = value),
-//           onPressed: _answerUrl == '' ? null : () => _validate(),
-//         )
-//       : ElevatedButton(
-//           onPressed: () => widget.connector
-//               .getAuthentication(_showAuthentication),
-//           child: const Text('Authenticate')),
-// ),
-// Padding(
-//   padding: const EdgeInsets.all(8.0),
-//   child: TextSender(
-//     labelText: 'Write the username',
-//     buttonText: 'Get ID',
-//     onChanged: (value) => setState(() => _username = value),
-//     onPressed: _username == ''
-//         ? null
-//         : () => widget.connector.getStreamerId(_username),
-//   ),
-// ),
-// const Text('Answer from command',
-//     style: TextStyle(
-//       fontSize: 18,
-//       fontWeight: FontWeight.bold,
-//     )),
-// Padding(
-//   padding: const EdgeInsets.all(8.0),
-//   child: _lastMessage == '' ? null : SelectableText(_lastMessage),
-// ),
-// const Divider(),
