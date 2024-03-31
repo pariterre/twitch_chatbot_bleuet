@@ -1,4 +1,4 @@
-# botbleuet_twitch
+# twitch_chat_bot
 
 A new Flutter project.
 
