@@ -1,27 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:twitch_manager/twitch_manager.dart';
-
-import '/sceens/twitch_chat_bot.dart';
+import 'package:twitch_chat_bot/managers/configuration_manager.dart';
+import 'package:twitch_chat_bot/screens/chat_bot_screen.dart';
 
 void main() async {
   runApp(MaterialApp(
-    initialRoute: TwitchAuthenticationScreen.route,
-    routes: {
-      TwitchAuthenticationScreen.route: (ctx) =>
-          const TwitchAuthenticationScreen(
-            nextRoute: TwitchChatBot.route,
-            appId: 'mcysoxq3vitdjwcqn71f8opz11cyex',
-            scope: [
-              TwitchScope.chatRead,
-              TwitchScope.chatEdit,
-              TwitchScope.chatters,
-              TwitchScope.readFollowers,
-              TwitchScope.readSubscribers,
-            ],
-            withModerator: true,
-            forceNewAuthentication: false,
-          ),
-      TwitchChatBot.route: (ctx) => const TwitchChatBot(),
-    },
+    home: const TwitchChatBotScreen(),
+    theme: ThemeData(
+        dividerTheme: DividerThemeData(
+            color: ConfigurationManager.instance.twitchColorLight),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: ConfigurationManager.instance.twitchColorDark,
+                foregroundColor: Colors.white))),
   ));
 }
