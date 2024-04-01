@@ -4,7 +4,7 @@ import 'package:twitch_manager/twitch_manager.dart' as tm;
 class ConfigurationManager {
   static ConfigurationManager get instance => _singleton;
 
-  final useTwitchMock = true;
+  final useTwitchMock = false;
 
   final twitchAppInfo = tm.TwitchAppInfo(
     appName: 'My Lovely App',
@@ -15,14 +15,13 @@ class ConfigurationManager {
       tm.TwitchScope.chatRead,
       tm.TwitchScope.chatEdit,
       tm.TwitchScope.chatters,
-      tm.TwitchScope.readFollowers,
     ],
   );
 
   final twitchDebugOptions = tm.TwitchDebugPanelOptions(
     // Which chatters are currently in the chat
     chatters: [
-      tm.TwitchChatterMock(displayName: 'Streamer', isModerator: true),
+      tm.TwitchChatterMock(displayName: 'Streamer', isStreamer: true),
       tm.TwitchChatterMock(displayName: 'Moderator', isModerator: true),
       tm.TwitchChatterMock(displayName: 'Follower'),
       tm.TwitchChatterMock(displayName: 'Viewer', isFollower: false),
