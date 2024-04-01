@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:twitch_chat_bot/managers/configuration_manager.dart';
-import 'package:twitch_chat_bot/models/instant_message_controller.dart';
+import 'package:twitch_chatbot_bleuet/managers/configuration_manager.dart';
+import 'package:twitch_chatbot_bleuet/models/instant_message_controller.dart';
 
 class TwitchInstantMessageFormField extends StatefulWidget {
   const TwitchInstantMessageFormField(

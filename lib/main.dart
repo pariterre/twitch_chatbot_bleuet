@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:twitch_chat_bot/managers/configuration_manager.dart';
-import 'package:twitch_chat_bot/screens/chat_bot_screen.dart';
+import 'package:twitch_chatbot_bleuet/managers/configuration_manager.dart';
+import 'package:twitch_chatbot_bleuet/screens/chat_bot_screen.dart';
 
 void main() async {
   runApp(MaterialApp(

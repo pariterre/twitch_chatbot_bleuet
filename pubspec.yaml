@@ -1,5 +1,5 @@
-name: twitch_chat_bot
-description: A chat bot for Twitch
+name: twitch_chatbot_bleuet
+description: A chatbot for all your blueberry Twitch's need
 publish_to: none
 
 version: 1.0.0+1

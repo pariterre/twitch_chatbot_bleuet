@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:twitch_chat_bot/managers/configuration_manager.dart';
-import 'package:twitch_chat_bot/models/command_controller.dart';
+import 'package:twitch_chatbot_bleuet/managers/configuration_manager.dart';
+import 'package:twitch_chatbot_bleuet/models/command_controller.dart';
 
 class TwitchCommandFormField extends StatefulWidget {
   const TwitchCommandFormField({

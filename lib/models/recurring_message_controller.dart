@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:quiver/collection.dart';
-import 'package:twitch_chat_bot/managers/twitch_manager.dart';
-import 'package:twitch_chat_bot/models/custom_callback.dart';
-import 'package:twitch_chat_bot/models/serializable.dart';
+import 'package:twitch_chatbot_bleuet/managers/twitch_manager.dart';
+import 'package:twitch_chatbot_bleuet/models/custom_callback.dart';
+import 'package:twitch_chatbot_bleuet/models/serializable.dart';
 
 class ReccurringMessageController implements Serializable {
   ReccurringMessageController();

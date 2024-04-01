@@ -1,11 +1,11 @@
 {
-    "name": "Twitch Chat Bot",
-    "short_name": "Twitch Chat Bot",
+    "name": "Twitch ChatbotBleuet",
+    "short_name": "Twitch ChatbotBleuet",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A simple chatbot for all your Twitch's needs.",
+    "description": "A simple chatbot for all your blueberry Twitch's needs.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:twitch_chat_bot/managers/configuration_manager.dart';
-import 'package:twitch_chat_bot/models/recurring_message_controller.dart';
+import 'package:twitch_chatbot_bleuet/managers/configuration_manager.dart';
+import 'package:twitch_chatbot_bleuet/models/recurring_message_controller.dart';
 
 class TwitchRecurringMessageFormField extends StatefulWidget {
   const TwitchRecurringMessageFormField({

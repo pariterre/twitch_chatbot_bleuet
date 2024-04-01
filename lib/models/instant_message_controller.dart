@@ -1,4 +1,4 @@
-import 'package:twitch_chat_bot/managers/twitch_manager.dart';
+import 'package:twitch_chatbot_bleuet/managers/twitch_manager.dart';
 
 class InstantMessageController {
   InstantMessageController();

@@ -1,5 +1,5 @@
 import 'package:quiver/collection.dart';
-import 'package:twitch_chat_bot/models/serializable.dart';
+import 'package:twitch_chatbot_bleuet/models/serializable.dart';
 
 class CommandController implements Serializable {
   String command = '';

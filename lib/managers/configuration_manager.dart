@@ -7,9 +7,9 @@ class ConfigurationManager {
   final useTwitchMock = false;
 
   final twitchAppInfo = tm.TwitchAppInfo(
-    appName: 'My Lovely App',
-    twitchAppId: 'YOUR_APP_ID_HERE',
-    redirectUri: 'YOUR_REDIRECT_DOMAIN_HERE',
+    appName: 'Chatbot Bleuet',
+    twitchAppId: '9hlzml6vu97qqghxubqe51i3l4d0y1',
+    redirectUri: 'twitchauthentication.pariterre.net',
     // Requested scopes for the connexion
     scope: const [
       tm.TwitchScope.chatRead,

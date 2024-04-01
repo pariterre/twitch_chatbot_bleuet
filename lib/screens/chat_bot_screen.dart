@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:twitch_chat_bot/managers/configuration_manager.dart';
-import 'package:twitch_chat_bot/managers/twitch_manager.dart';
-import 'package:twitch_chat_bot/models/command_controller.dart';
-import 'package:twitch_chat_bot/models/instant_message_controller.dart';
-import 'package:twitch_chat_bot/models/recurring_message_controller.dart';
-import 'package:twitch_chat_bot/widgets/twitch_command_formfield.dart';
-import 'package:twitch_chat_bot/widgets/twitch_instant_message_formfield.dart';
-import 'package:twitch_chat_bot/widgets/twitch_recurring_message_formfield.dart';
+import 'package:twitch_chatbot_bleuet/managers/configuration_manager.dart';
+import 'package:twitch_chatbot_bleuet/managers/twitch_manager.dart';
+import 'package:twitch_chatbot_bleuet/models/command_controller.dart';
+import 'package:twitch_chatbot_bleuet/models/instant_message_controller.dart';
+import 'package:twitch_chatbot_bleuet/models/recurring_message_controller.dart';
+import 'package:twitch_chatbot_bleuet/widgets/twitch_command_formfield.dart';
+import 'package:twitch_chatbot_bleuet/widgets/twitch_instant_message_formfield.dart';
+import 'package:twitch_chatbot_bleuet/widgets/twitch_recurring_message_formfield.dart';
 import 'package:twitch_manager/twitch_manager.dart' as tm;
 
 class TwitchChatBotScreen extends StatefulWidget {
