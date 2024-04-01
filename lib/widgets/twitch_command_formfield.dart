@@ -8,12 +8,14 @@ class TwitchCommandFormField extends StatefulWidget {
     required this.controller,
     required this.hintCommand,
     required this.hintAnswer,
+    required this.onChanged,
     required this.onDelete,
   });
 
   final CommandController controller;
   final String hintCommand;
   final String hintAnswer;
+  final void Function() onChanged;
   final void Function() onDelete;
 
   @override
@@ -24,12 +26,20 @@ class _TwitchCommandFormFieldState extends State<TwitchCommandFormField> {
   Widget _buildStartButton() {
     if (widget.controller.isActive) {
       return IconButton(
-          onPressed: () => setState(() => widget.controller.isActive = false),
+          onPressed: () {
+            widget.controller.isActive = false;
+            widget.onChanged();
+            setState(() {});
+          },
           icon: Icon(Icons.pause,
               color: ConfigurationManager.instance.twitchColorDark));
     } else {
       return IconButton(
-          onPressed: () => setState(() => widget.controller.isActive = true),
+          onPressed: () {
+            widget.controller.isActive = true;
+            widget.onChanged();
+            setState(() {});
+          },
           icon: Icon(Icons.send,
               color: ConfigurationManager.instance.twitchColorDark));
     }
@@ -49,8 +59,11 @@ class _TwitchCommandFormFieldState extends State<TwitchCommandFormField> {
                 maxLines: 1,
                 initialValue: widget.controller.command,
                 enabled: true,
-                onChanged: (value) =>
-                    setState(() => widget.controller.command = value),
+                onChanged: (value) {
+                  widget.controller.command = value;
+                  widget.onChanged();
+                  setState(() {});
+                },
                 style: const TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(),
@@ -76,8 +89,11 @@ class _TwitchCommandFormFieldState extends State<TwitchCommandFormField> {
                 maxLines: null,
                 initialValue: widget.controller.answer,
                 enabled: true,
-                onChanged: (value) =>
-                    setState(() => widget.controller.answer = value),
+                onChanged: (value) {
+                  widget.controller.answer = value;
+                  widget.onChanged();
+                  setState(() {});
+                },
                 style: const TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(),

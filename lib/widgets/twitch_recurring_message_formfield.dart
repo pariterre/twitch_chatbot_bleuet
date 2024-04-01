@@ -4,14 +4,17 @@ import 'package:twitch_chat_bot/managers/configuration_manager.dart';
 import 'package:twitch_chat_bot/models/recurring_message_controller.dart';
 
 class TwitchRecurringMessageFormField extends StatefulWidget {
-  const TwitchRecurringMessageFormField(
-      {super.key,
-      required this.controller,
-      required this.hint,
-      required this.onDelete});
+  const TwitchRecurringMessageFormField({
+    super.key,
+    required this.controller,
+    required this.hint,
+    required this.onChanged,
+    required this.onDelete,
+  });
 
   final ReccurringMessageController controller;
   final String hint;
+  final void Function() onChanged;
   final void Function() onDelete;
 
   @override
@@ -21,10 +24,27 @@ class TwitchRecurringMessageFormField extends StatefulWidget {
 
 class _TwitchRecurringMessageFormFieldState
     extends State<TwitchRecurringMessageFormField> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.hasStarted.startListening(_refresh);
+    widget.controller.hasStopped.startListening(_refresh);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.hasStarted.stopListening(_refresh);
+    widget.controller.hasStopped.stopListening(_refresh);
+    super.dispose();
+  }
+
+  void _refresh() => setState(() {});
+
   void _setInterval(String value) {
     int? time = int.tryParse(value);
     widget.controller.interval =
         time == null ? Duration.zero : Duration(minutes: time);
+    widget.onChanged();
     setState(() {});
   }
 
@@ -32,25 +52,7 @@ class _TwitchRecurringMessageFormFieldState
     int? time = int.tryParse(value);
     widget.controller.delay =
         time == null ? Duration.zero : Duration(minutes: time);
-  }
-
-  Widget _buildStartButton() {
-    if (widget.controller.isStarted) {
-      return IconButton(
-          onPressed: () =>
-              setState(() => widget.controller.stopStreamingText()),
-          icon: Icon(Icons.pause,
-              color: ConfigurationManager.instance.twitchColorDark));
-    } else {
-      return IconButton(
-          onPressed: widget.controller.isReadyToSend
-              ? () => setState(() => widget.controller.startStreamingText())
-              : null,
-          icon: Icon(Icons.send,
-              color: widget.controller.isReadyToSend
-                  ? ConfigurationManager.instance.twitchColorDark
-                  : Colors.grey));
-    }
+    widget.onChanged();
   }
 
   @override
@@ -71,8 +73,11 @@ class _TwitchRecurringMessageFormFieldState
                 maxLines: null,
                 initialValue: widget.controller.message,
                 enabled: canEdit,
-                onChanged: (value) =>
-                    setState(() => widget.controller.message = value),
+                onChanged: (value) {
+                  widget.controller.message = value;
+                  widget.onChanged();
+                  setState(() {});
+                },
                 style: TextStyle(color: canEdit ? Colors.black : Colors.grey),
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(), labelText: widget.hint),
@@ -128,7 +133,21 @@ class _TwitchRecurringMessageFormFieldState
                 )),
             Padding(
               padding: const EdgeInsets.only(left: 4.0),
-              child: _buildStartButton(),
+              child: IconButton(
+                  onPressed: () {
+                    widget.controller.isStarted ||
+                            widget.controller.shouldStartAutomatically
+                        ? widget.controller.stopStreamingText()
+                        : widget.controller.startStreamingText();
+                    widget.onChanged();
+                    setState(() {});
+                  },
+                  icon: Icon(
+                      widget.controller.isStarted ||
+                              widget.controller.shouldStartAutomatically
+                          ? Icons.pause
+                          : Icons.send,
+                      color: ConfigurationManager.instance.twitchColorDark)),
             ),
           ],
         ),

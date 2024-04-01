@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twitch_chat_bot/managers/configuration_manager.dart';
 import 'package:twitch_chat_bot/managers/twitch_manager.dart';
 import 'package:twitch_chat_bot/models/command_controller.dart';
@@ -19,8 +22,16 @@ class TwitchChatBotScreen extends StatefulWidget {
 class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
   final InstantMessageController _instantMessageController =
       InstantMessageController();
-  final List<ReccurringMessageController> _recurringMessageControllers = [];
-  final List<CommandController> _commandControllers = [];
+
+  bool _isLoading = true;
+  ReccurringMessageControllers? _recurringMessageControllers;
+  CommandControllers? _commandControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,22 +69,26 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
                                   topRight: Radius.circular(25)),
                             ),
                           ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 24.0),
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 12),
-                                  ..._buildInstantMessage(),
-                                  const Divider(),
-                                  ..._buildRecurringMessage(),
-                                  const Divider(),
-                                  ..._buildCommand(),
-                                ],
+                          if (_isLoading || _isTwitchChangingStatus)
+                            const Center(child: CircularProgressIndicator()),
+                          if (!_isLoading && !_isTwitchChangingStatus)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 12),
+                                    ..._buildInstantMessage(),
+                                    const Divider(),
+                                    ..._buildRecurringMessage(),
+                                    const Divider(),
+                                    ..._buildCommand(),
+                                    const Divider(),
+                                  ],
+                                ),
                               ),
-                            ),
-                          )
+                            )
                         ],
                       ),
                     ),
@@ -87,23 +102,61 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
     );
   }
 
+  void _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = jsonDecode(prefs.getString('chatbotData') ?? '{}');
+
+    _recurringMessageControllers = ReccurringMessageControllers.deserialize(
+        data['recurringMessages'] ?? {});
+    _commandControllers =
+        CommandControllers.deserialize(data['commands'] ?? {});
+    _isLoading = false;
+    setState(() {});
+  }
+
+  void _saveChanges() async {
+    final data = {
+      'recurringMessages': _recurringMessageControllers!.serialize(),
+      'commands': _commandControllers!.serialize(),
+    };
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('chatbotData', jsonEncode(data));
+  }
+
   List<Widget> _buildConnexion() {
     return [
       const SizedBox(height: 18),
       Text('Connexion panel', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 8),
-      tm.TwitchConnectButton(
-        twitchManager: TwitchManager.instance,
+      ElevatedButton(
         onPressed: _connectToTwitch,
+        style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF6441a5),
+            foregroundColor: Colors.white),
+        child: Text(TwitchManager.instance?.isConnected ?? false
+            ? 'Disconnect from twitch'
+            : 'Connect to Twitch'),
       ),
       const SizedBox(height: 18),
     ];
   }
 
+  bool _isTwitchChangingStatus = false;
+
   Future<void> _connectToTwitch() async {
+    setState(() => _isTwitchChangingStatus = true);
+
     if (TwitchManager.isConnected) {
       await TwitchManager.instance?.disconnect();
-      WidgetsBinding.instance.addPostFrameCallback((_) => _connectToTwitch());
+
+      _recurringMessageControllers?.forEach((controller) {
+        controller.stopStreamingText(
+            shouldRestartAutomatically: controller.isStarted);
+        controller.hasStopped.notifyListerners((callback) => callback());
+      });
+
+      setState(() => _isTwitchChangingStatus = false);
       return;
     }
 
@@ -122,7 +175,12 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
     TwitchManager.instance!.chat.onMessageReceived
         .startListening(_onMessageReceived);
 
-    setState(() {});
+    _recurringMessageControllers?.forEach((controller) {
+      if (controller.shouldStartAutomatically) controller.startStreamingText();
+    });
+    _saveChanges();
+
+    setState(() => _isTwitchChangingStatus = false);
   }
 
   List<Widget> _buildInstantMessage() {
@@ -142,15 +200,16 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
       const SizedBox(height: 12),
       Text('Recurring messages', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 8),
-      ..._recurringMessageControllers.map(
+      ..._recurringMessageControllers!.map(
         (controller) => Column(
           children: [
             TwitchRecurringMessageFormField(
-                controller: controller,
                 key: ObjectKey(controller),
+                controller: controller,
                 hint: 'The recurring message to send',
+                onChanged: _saveChanges,
                 onDelete: () => setState(
-                    () => _recurringMessageControllers.remove(controller))),
+                    () => _recurringMessageControllers!.remove(controller))),
             const SizedBox(height: 12),
             const SizedBox(
                 width: 450,
@@ -164,7 +223,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
       ),
       ElevatedButton(
         onPressed: () => setState(() =>
-            _recurringMessageControllers.add(ReccurringMessageController())),
+            _recurringMessageControllers!.add(ReccurringMessageController())),
         child: const Text('(+) Add reccurring message'),
       ),
       const SizedBox(height: 12),
@@ -176,7 +235,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
       const SizedBox(height: 12),
       Text('Chatbot commands', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 8),
-      ..._commandControllers.map(
+      ..._commandControllers!.map(
         (controller) => Column(
           children: [
             TwitchCommandFormField(
@@ -184,8 +243,9 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
                 key: ObjectKey(controller),
                 hintCommand: 'The chat command to listen to',
                 hintAnswer: 'The response message',
+                onChanged: _saveChanges,
                 onDelete: () =>
-                    setState(() => _commandControllers.remove(controller))),
+                    setState(() => _commandControllers!.remove(controller))),
             const SizedBox(height: 12),
             const SizedBox(
                 width: 450,
@@ -200,7 +260,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
       const SizedBox(height: 8),
       ElevatedButton(
         onPressed: () =>
-            setState(() => _commandControllers.add(CommandController())),
+            setState(() => _commandControllers!.add(CommandController())),
         child: const Text('(+) Add command'),
       ),
       const SizedBox(height: 12),
@@ -208,7 +268,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
   }
 
   void _onMessageReceived(String sender, String message) {
-    for (final controller in _commandControllers) {
+    for (final controller in _commandControllers!) {
       if (controller.isActive && controller.command == message) {
         TwitchManager.instance?.chat.send(controller.answer);
       }
