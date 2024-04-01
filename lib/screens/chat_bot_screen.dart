@@ -110,12 +110,16 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
         data['recurringMessages'] ?? {});
     _commandControllers =
         CommandControllers.deserialize(data['commands'] ?? {});
+
     _isLoading = false;
     setState(() {});
+
+    if (data['canAutoConnectToTwitch'] ?? false) _connectToTwitch();
   }
 
   void _saveChanges() async {
     final data = {
+      'canAutoConnectToTwitch': TwitchManager.instance?.isConnected ?? false,
       'recurringMessages': _recurringMessageControllers!.serialize(),
       'commands': _commandControllers!.serialize(),
     };
@@ -153,33 +157,31 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
       _recurringMessageControllers?.forEach((controller) {
         controller.stopStreamingText(
             shouldRestartAutomatically: controller.isStarted);
-        controller.hasStopped.notifyListerners((callback) => callback());
       });
+    } else {
+      TwitchManager.initialize(await showDialog(
+          context: context,
+          builder: (ctx) => tm.TwitchAuthenticationDialog(
+                isMockActive: ConfigurationManager.instance.useTwitchMock,
+                onConnexionEstablished: (manager) =>
+                    Navigator.of(context).pop(manager),
+                appInfo: ConfigurationManager.instance.twitchAppInfo,
+                reload: true,
+                debugPanelOptions:
+                    ConfigurationManager.instance.twitchDebugOptions,
+              )));
 
-      setState(() => _isTwitchChangingStatus = false);
-      return;
+      TwitchManager.instance!.chat.onMessageReceived
+          .startListening(_onMessageReceived);
+
+      _recurringMessageControllers?.forEach((controller) {
+        if (controller.shouldStartAutomatically) {
+          controller.startStreamingText();
+        }
+      });
     }
 
-    TwitchManager.initialize(await showDialog(
-        context: context,
-        builder: (ctx) => tm.TwitchAuthenticationDialog(
-              isMockActive: ConfigurationManager.instance.useTwitchMock,
-              onConnexionEstablished: (manager) =>
-                  Navigator.of(context).pop(manager),
-              appInfo: ConfigurationManager.instance.twitchAppInfo,
-              reload: true,
-              debugPanelOptions:
-                  ConfigurationManager.instance.twitchDebugOptions,
-            )));
-
-    TwitchManager.instance!.chat.onMessageReceived
-        .startListening(_onMessageReceived);
-
-    _recurringMessageControllers?.forEach((controller) {
-      if (controller.shouldStartAutomatically) controller.startStreamingText();
-    });
     _saveChanges();
-
     setState(() => _isTwitchChangingStatus = false);
   }
 
