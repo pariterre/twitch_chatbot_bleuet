@@ -6,9 +6,11 @@ import 'package:twitch_chatbot_bleuet/managers/configuration_manager.dart';
 import 'package:twitch_chatbot_bleuet/managers/twitch_manager.dart';
 import 'package:twitch_chatbot_bleuet/models/command_controller.dart';
 import 'package:twitch_chatbot_bleuet/models/instant_message_controller.dart';
+import 'package:twitch_chatbot_bleuet/models/need_love_controller.dart';
 import 'package:twitch_chatbot_bleuet/models/recurring_message_controller.dart';
 import 'package:twitch_chatbot_bleuet/widgets/twitch_command_formfield.dart';
 import 'package:twitch_chatbot_bleuet/widgets/twitch_instant_message_formfield.dart';
+import 'package:twitch_chatbot_bleuet/widgets/twitch_need_love_formfield.dart';
 import 'package:twitch_chatbot_bleuet/widgets/twitch_recurring_message_formfield.dart';
 import 'package:twitch_manager/twitch_app.dart';
 
@@ -26,6 +28,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
   bool _isLoading = true;
   ReccurringMessageControllers? _recurringMessageControllers;
   CommandControllers? _commandControllers;
+  NeedLoveController? _needLoveController;
 
   @override
   void initState() {
@@ -85,6 +88,9 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
                                     const Divider(),
                                     ..._buildCommand(),
                                     const Divider(),
+                                    ..._buildNeedLove(),
+                                    const Divider(),
+                                    const SizedBox(height: 200),
                                   ],
                                 ),
                               ),
@@ -110,6 +116,8 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
         data['recurringMessages'] ?? {});
     _commandControllers =
         CommandControllers.deserialize(data['commands'] ?? {});
+    _needLoveController =
+        NeedLoveController.deserialize(data['needLove'] ?? {});
 
     _isLoading = false;
     setState(() {});
@@ -122,6 +130,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
       'canAutoConnectToTwitch': TwitchManager.instance?.isConnected ?? false,
       'recurringMessages': _recurringMessageControllers!.serialize(),
       'commands': _commandControllers!.serialize(),
+      'needLove': _needLoveController!.serialize(),
     };
 
     final prefs = await SharedPreferences.getInstance();
@@ -268,11 +277,37 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
     ];
   }
 
+  List<Widget> _buildNeedLove() {
+    return [
+      const SizedBox(height: 12),
+      Text('Need love commands', style: Theme.of(context).textTheme.titleLarge),
+      const SizedBox(height: 8),
+      TwitchNeedLoveFormField(
+        controller: _needLoveController!,
+        hintAddMe: 'The chat command to add a user to the list',
+        hintRemoveMe: 'The chat command to remove a user from the list',
+        hintListAll: 'The chat command to list all users who need love',
+        onChanged: _saveChanges,
+      ),
+      const SizedBox(height: 12),
+    ];
+  }
+
   void _onMessageReceived(String sender, String message) {
+    message = message.toLowerCase();
+
+    // Bot commands section
     for (final controller in _commandControllers!) {
-      if (controller.isActive && controller.command == message) {
+      if (controller.isActive && controller.command.toLowerCase() == message) {
         TwitchManager.instance?.chat.send(controller.answer);
       }
+    }
+
+    // Need love section
+    final reponseToNeedLove =
+        _needLoveController?.responseToIncoming(message, sender);
+    if (reponseToNeedLove != null) {
+      TwitchManager.instance?.chat.send(reponseToNeedLove);
     }
   }
 }
