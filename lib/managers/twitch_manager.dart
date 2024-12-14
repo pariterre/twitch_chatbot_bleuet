@@ -1,4 +1,4 @@
-import 'package:twitch_manager/twitch_manager.dart' as tm;
+import 'package:twitch_manager/twitch_app.dart';
 
 class TwitchManager {
   ///
@@ -7,16 +7,16 @@ class TwitchManager {
 
   ///
   /// Setup a singleton for the TwitchManager
-  static tm.TwitchManager? get instance => _singleton._manager;
+  static TwitchAppManager? get instance => _singleton._manager;
 
   ///
   /// Initialize the singleton
-  static void initialize(tm.TwitchManager manager) =>
+  static void initialize(TwitchAppManager manager) =>
       _singleton._manager = manager;
 
   ///
   /// Internal
   static final TwitchManager _singleton = TwitchManager._();
   TwitchManager._();
-  tm.TwitchManager? _manager;
+  TwitchAppManager? _manager;
 }

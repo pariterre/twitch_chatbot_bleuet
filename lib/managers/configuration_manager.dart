@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:twitch_manager/twitch_manager.dart' as tm;
+import 'package:twitch_manager/twitch_app.dart';
 
 class ConfigurationManager {
   static ConfigurationManager get instance => _singleton;
 
   final useTwitchMock = false;
 
-  final twitchAppInfo = tm.TwitchAppInfo(
+  final twitchAppInfo = TwitchAppInfo(
     appName: 'Chatbot Bleuet',
-    twitchAppId: '9hlzml6vu97qqghxubqe51i3l4d0y1',
-    redirectUri: 'twitchauthentication.pariterre.net',
+    twitchClientId: '9hlzml6vu97qqghxubqe51i3l4d0y1',
+    twitchRedirectUri:
+        Uri.https('twitchauthentication.pariterre.net', 'twitch_redirect.html'),
+    authenticationServerUri:
+        Uri.https('twitchserver.pariterre.net:3000', 'token'),
     // Requested scopes for the connexion
     scope: const [
-      tm.TwitchScope.chatRead,
-      tm.TwitchScope.chatEdit,
-      tm.TwitchScope.chatters,
+      TwitchAppScope.chatRead,
+      TwitchAppScope.chatEdit,
+      TwitchAppScope.chatters,
     ],
   );
 
-  final twitchDebugOptions = tm.TwitchDebugPanelOptions(
+  final twitchDebugOptions = TwitchDebugPanelOptions(
     // Which chatters are currently in the chat
     chatters: [
-      tm.TwitchChatterMock(displayName: 'Streamer', isStreamer: true),
-      tm.TwitchChatterMock(displayName: 'Moderator', isModerator: true),
-      tm.TwitchChatterMock(displayName: 'Follower'),
-      tm.TwitchChatterMock(displayName: 'Viewer', isFollower: false),
+      TwitchChatterMock(displayName: 'Streamer', isStreamer: true),
+      TwitchChatterMock(displayName: 'Moderator', isModerator: true),
+      TwitchChatterMock(displayName: 'Follower'),
+      TwitchChatterMock(displayName: 'Viewer', isFollower: false),
     ],
     // Prewritten message to send to the chat
     chatMessages: [

@@ -10,7 +10,7 @@ import 'package:twitch_chatbot_bleuet/models/recurring_message_controller.dart';
 import 'package:twitch_chatbot_bleuet/widgets/twitch_command_formfield.dart';
 import 'package:twitch_chatbot_bleuet/widgets/twitch_instant_message_formfield.dart';
 import 'package:twitch_chatbot_bleuet/widgets/twitch_recurring_message_formfield.dart';
-import 'package:twitch_manager/twitch_manager.dart' as tm;
+import 'package:twitch_manager/twitch_app.dart';
 
 class TwitchChatBotScreen extends StatefulWidget {
   const TwitchChatBotScreen({super.key});
@@ -37,7 +37,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
   Widget build(BuildContext context) {
     final cm = ConfigurationManager.instance;
 
-    return tm.TwitchDebugOverlay(
+    return TwitchAppDebugOverlay(
       manager: TwitchManager.instance,
       child: Scaffold(
         appBar: AppBar(
@@ -161,7 +161,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
     } else {
       TwitchManager.initialize(await showDialog(
           context: context,
-          builder: (ctx) => tm.TwitchAuthenticationDialog(
+          builder: (ctx) => TwitchAppAuthenticationDialog(
                 isMockActive: ConfigurationManager.instance.useTwitchMock,
                 onConnexionEstablished: (manager) =>
                     Navigator.of(context).pop(manager),
@@ -171,8 +171,7 @@ class _TwitchChatBotScreenState extends State<TwitchChatBotScreen> {
                     ConfigurationManager.instance.twitchDebugOptions,
               )));
 
-      TwitchManager.instance!.chat.onMessageReceived
-          .startListening(_onMessageReceived);
+      TwitchManager.instance!.chat.onMessageReceived.listen(_onMessageReceived);
 
       _recurringMessageControllers?.forEach((controller) {
         if (controller.shouldStartAutomatically) {
