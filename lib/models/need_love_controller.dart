@@ -30,7 +30,7 @@ class NeedLoveController implements Serializable {
         'removeUserCommand': removeUserCommand,
         'listUsersCommand': listUsersCommand,
         'userAddedResponse': userAddedResponse,
-        'alreadyRegisteredResponse': userAlreadyRegisteredResponse,
+        'userAlreadyRegisteredResponse': userAlreadyRegisteredResponse,
         'userRemovedResponse': userRemovedResponse,
         'userNotRegisteredResponse': userNotRegisteredResponse,
         'listUsersResponse': listUsersResponse,
@@ -40,7 +40,18 @@ class NeedLoveController implements Serializable {
   static NeedLoveController deserialize(Map<String, dynamic> data) {
     final out = NeedLoveController();
     out.addUserCommand = data['addUserCommand'] ?? out.addUserCommand;
+    out.removeUserCommand = data['removeUserCommand'] ?? out.removeUserCommand;
     out.listUsersCommand = data['listUsersCommand'] ?? out.listUsersCommand;
+    out.userAddedResponse = data['userAddedResponse'] ?? out.userAddedResponse;
+    out.userAlreadyRegisteredResponse = data['userAlreadyRegisteredResponse'] ??
+        out.userAlreadyRegisteredResponse;
+    out.userRemovedResponse =
+        data['userRemovedResponse'] ?? out.userRemovedResponse;
+    out.userNotRegisteredResponse =
+        data['userNotRegisteredResponse'] ?? out.userNotRegisteredResponse;
+    out.listUsersResponse = data['listUsersResponse'] ?? out.listUsersResponse;
+    out.listUsersEmptyResponse =
+        data['listUsersEmptyResponse'] ?? out.listUsersEmptyResponse;
     return out;
   }
 
